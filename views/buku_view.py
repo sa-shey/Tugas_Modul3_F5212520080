@@ -2,17 +2,39 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import customtkinter as ctk
+import tkinter as tk
 from tkinter import ttk, messagebox
+
+
+class ctk:
+    """Small tkinter-compatible fallback for environments without customtkinter."""
+    CTk = tk.Tk
+    CTkFrame = tk.Frame
+    CTkLabel = tk.Label
+
+    class CTkEntry(tk.Entry):
+        def __init__(self, master=None, **kwargs):
+            kwargs.pop("placeholder_text", None)
+            super().__init__(master, **kwargs)
+
+    class CTkButton(tk.Button):
+        def __init__(self, master=None, **kwargs):
+            color = kwargs.pop("fg_color", None)
+            hover_color = kwargs.pop("hover_color", None)
+            if color:
+                kwargs.setdefault("bg", color)
+                kwargs.setdefault("activebackground", hover_color or color)
+                kwargs.setdefault("fg", "white")
+            super().__init__(master, **kwargs)
+
+
 from models.buku_model import BukuModel
-from controllers.buku_controller import BukuController
 
 class BukuView(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Sistem Perpustakaan - Manajemen Data Buku")
         self.geometry("900x520")
-        self.controller = BukuController(self)
 
         # Inisialisasi Model Buku
         self.buku_model = BukuModel()
@@ -49,12 +71,16 @@ class BukuView(ctk.CTk):
 
         
         # Tombol Perbarui Data (Update)
-        self.btn_update = ctk.CTkButton(self.frame_kiri, text="Perbarui Data (Update)", fg_color="#1d6fa5", hover_color="#15527a", command=self.controller.update_data)
+        self.btn_update = ctk.CTkButton(self.frame_kiri, text="Perbarui Data (Update)", fg_color="#1d6fa5", hover_color="#15527a")
         self.btn_update.pack(fill="x", padx=10, pady=5)
 
         # Tombol Hapus Data (Delete)
-        self.btn_delete = ctk.CTkButton( self.frame_kiri, text="Hapus Data (Delete)", fg_color="#c82333", hover_color="#bd2130", command=self.controller.delete_data)
+        self.btn_delete = ctk.CTkButton( self.frame_kiri, text="Hapus Data (Delete)", fg_color="#c82333", hover_color="#bd2130")
         self.btn_delete.pack(fill="x", padx=10, pady=5)
+
+        # Tombol Logout
+        self.btn_logout = ctk.CTkButton(self.frame_kiri, text="Logout", fg_color="#6c757d",hover_color="#5a6268", command=self.logout)
+        self.btn_logout.pack(fill="x", padx=10, pady=5)
 
         # 2. FRAME KANAN: TABEL DAFTAR BUKU
         self.frame_kanan = ctk.CTkFrame(self)
@@ -77,7 +103,7 @@ class BukuView(ctk.CTk):
         self.tabel.column("tahun", width=90, anchor="center")
 
         self.tabel.pack(fill="both", expand=True, padx=15, pady=10)
-        self.tabel.bind("<<TreeviewSelect>>", self.controller.pilih_data)
+        self.tabel.bind("<<TreeviewSelect>>")
 
         # Memuat data awal saat aplikasi dibuka
         self.load_data()
@@ -212,7 +238,19 @@ class BukuView(ctk.CTk):
         # Menghilangkan pilihan baris pada tabel
         self.tabel.selection_remove(self.tabel.selection())
 
+    def logout(self):
+        konfirmasi = messagebox.askyesno(
+        "Konfirmasi Logout",
+        "Apakah kamu yakin ingin logout?"
+    )
 
+        if konfirmasi:
+            self.destroy()
+
+        from controllers.auth_controller import AuthController
+
+        login = AuthController()
+        login.run()
 
 if __name__ == "__main__":
     app = BukuView()
