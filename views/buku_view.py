@@ -103,7 +103,7 @@ class BukuView(ctk.CTk):
         self.tabel.column("tahun", width=90, anchor="center")
 
         self.tabel.pack(fill="both", expand=True, padx=15, pady=10)
-        self.tabel.bind("<<TreeviewSelect>>")
+        self.tabel.bind("<<TreeviewSelect>>", self.pilih_data)
 
         # Memuat data awal saat aplikasi dibuka
         self.load_data()
