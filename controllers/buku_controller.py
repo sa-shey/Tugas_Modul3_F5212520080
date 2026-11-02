@@ -155,7 +155,7 @@ class BukuController:
             "Akses Ditolak",
             "Anda tidak memiliki izin untuk menghapus data!"
         )
-        return
+            return
     
         # Memeriksa apakah ada buku yang dipilih
         pilihan = self.view.tabel.selection()
@@ -165,7 +165,7 @@ class BukuController:
             "Peringatan",
             "Pilih data buku yang ingin dihapus!"
         )
-        return
+            return
 
         # Mengambil ID buku dari baris yang dipilih
         data = self.view.tabel.item(pilihan[0], "values")
